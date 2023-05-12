@@ -4,7 +4,7 @@ import {Audio} from 'expo-av'
 
 
 
-const SHAPE_SIZE = 60;
+const SHAPE_SIZE = 66;
 const NO_SHAPES = 12;
 const ACROSS = 3;
 const POSSIBLE_SHAPES = ['square','circle','triangle','rectangle']
@@ -31,7 +31,7 @@ const App = () => {
 
 
   for (let i=0;i<shapes.length;i++){
-    indropposition[i] = shapes[i].y>500
+    indropposition[i] = shapes[i].y>WINDOW_HEIGHT-GOAL_HEIGHT;
     anim_scale[i] = useRef(new Animated.Value(1)).current
     anim_opacity[i] = useRef(new Animated.Value(1)).current
   }
@@ -50,6 +50,7 @@ const App = () => {
     sound=="right"?await soundObj2.loadAsync(require("./assets/ding-36029.mp3"),{shouldPlay:false},false):{}
     sound=="wrong"?await soundObj2.loadAsync(require("./assets/negative_beeps-6008.mp3"),{shouldPlay:false},false):{}
     sound=="win"?await soundObj2.loadAsync(require("./assets/win.mp3"),{shouldPlay:false},false):{}
+    sound=="start"?await soundObj2.loadAsync(require("./assets/game_start.mp3"),{shouldPlay:false},false):{}
     await soundObj2.playAsync();
 
   }
@@ -67,21 +68,23 @@ const App = () => {
       setGoal(['color',chosencolor])
       }
       initshapes = GenerateShapes(curgoal);
-      for(let i=0;i<shapes.length;i++){
+      for(let i=0;i<shapes.length;i++){  //begin shapes animation
         Animated.timing(anim_scale[i],{toValue:0,duration:10,useNativeDriver:false}).start()
       }
       Animated.timing(winner_scale,{toValue:0,duration:10,useNativeDriver:false}).start()
       if(curgoal[0]=='shape'){
       Animated.timing(goal_scale,{toValue:0,duration:10,useNativeDriver:false}).start(()=>{
         Animated.timing(goal_scale,{toValue:1,duration:2000,useNativeDriver:false,easing:Easing.bounce}).start(()=>{
+          playSound("start");
           for(let i=0;i<shapes.length;i++){
             Animated.timing(anim_scale[i],{toValue:1,duration:500,useNativeDriver:false}).start()
           }
         })
       })
-      }else{
+      }else{ //begin colors animation
       Animated.timing(goal_height,{toValue:0,duration:10,useNativeDriver:false}).start(()=>{
       Animated.timing(goal_height,{toValue:GOAL_HEIGHT,duration:2000,useNativeDriver:false}).start(()=>{
+        playSound("start")
         for(let i=0;i<shapes.length;i++){
           Animated.timing(anim_scale[i],{toValue:1,duration:500,useNativeDriver:false}).start()
         }
