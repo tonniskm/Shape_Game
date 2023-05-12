@@ -232,7 +232,7 @@ const App = () => {
     {youwin}
     <View style={{flex:1,}}>
         <Text style={{top:0,left:10,fontSize:25}}>{message}</Text>
-        <View style={{flexGrow:1,top:WINDOW_HEIGHT-GOAL_HEIGHT,borderColor:'black',borderTopWidth:3,borderStyle:'dashed',alignItems:'center',}}>
+        <View style={{flexGrow:1,top:WINDOW_HEIGHT-GOAL_HEIGHT,width:'110%',left:-10,borderColor:'black',borderTopWidth:3,borderWidth:3,borderStyle:'dashed',alignItems:'center',}}>
         {goalrender}
         </View>
 
