@@ -1,6 +1,7 @@
 import React, { useState,useRef } from 'react';
-import { StyleSheet, View, PanResponder, Animated,Pressable,Text,Dimensions,Easing } from 'react-native';
+import { StyleSheet, View, PanResponder, Animated,Pressable,Text,Dimensions,Easing, Image } from 'react-native';
 import {Audio} from 'expo-av'
+import { animal_pic_numbers, getAnimalRender, getGoalImage, imagelist, playAnimalSound } from './animals/animals';
 
 
 
@@ -8,8 +9,9 @@ const SHAPE_SIZE = 66;
 const NO_SHAPES = 12;
 const ACROSS = 3;
 const POSSIBLE_SHAPES = ['square','circle','triangle','rectangle']
-const POSSIBLE_COLORS = ['red','blue','green','orange','yellow','purple']
-const GOAL_TYPES = ['shape','color']
+const POSSIBLE_COLORS = ['red','blue','green','orange','yellow','purple','black','magenta','tan','brown','cyan']
+const POSSIBLE_ANIMALS = ['cat','cow','crow','dog','duck','elephant','horse','monkey','owl','rooster','sheep']
+const GOAL_TYPES = ['shape','color','animal']
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
 const MARGIN = 50
@@ -24,6 +26,7 @@ const App = () => {
   let indropposition = []
   let anim_scale = Array(NO_SHAPES).fill(0)
   let anim_opacity = Array(NO_SHAPES).fill(0)
+  let [shape_index,setShape_index] = useState(1);
   let winner_scale = useRef(new Animated.Value(0)).current
   let goal_height = useRef(new Animated.Value(0)).current
   let goal_scale = useRef(new Animated.Value(0)).current
@@ -38,9 +41,6 @@ const App = () => {
 
   React.useEffect(()=>{
     Begin()
-
-
-      
   },[]);
 
   async function playSound(sound) {
@@ -52,30 +52,38 @@ const App = () => {
     sound=="win"?await soundObj2.loadAsync(require("./assets/win.mp3"),{shouldPlay:false},false):{}
     sound=="start"?await soundObj2.loadAsync(require("./assets/game_start.mp3"),{shouldPlay:false},false):{}
     await soundObj2.playAsync();
-
   }
+
   function Begin(){
-    let goaltype = Math.floor(Math.random()*2);
+    setShape_index(1);
+    let goaltype = GOAL_TYPES[Math.floor(Math.random()*GOAL_TYPES.length)];
     let curgoal = []
-    if(goaltype ==0){
+    if(goaltype =='shape'){
       let chosenshape = POSSIBLE_SHAPES[Math.floor(Math.random()*POSSIBLE_SHAPES.length)]
       curgoal = ['shape',chosenshape]
       setGoal(['shape',chosenshape])
-    }else{
+    }
+    if(goaltype=='color'){
       let chosencolor = POSSIBLE_COLORS[Math.floor(Math.random()*POSSIBLE_COLORS.length)]
       goaltype = 'color'
       curgoal = ['color',chosencolor]
       setGoal(['color',chosencolor])
       }
+    if(goaltype=='animal'){
+      let chosenanimal = POSSIBLE_ANIMALS[Math.floor(Math.random()*POSSIBLE_COLORS.length)]
+      goaltype = 'animal'
+      curgoal = ['animal',chosenanimal]
+      setGoal(['animal',chosenanimal])
+    }
       initshapes = GenerateShapes(curgoal);
       for(let i=0;i<shapes.length;i++){  //begin shapes animation
         Animated.timing(anim_scale[i],{toValue:0,duration:10,useNativeDriver:false}).start()
       }
       Animated.timing(winner_scale,{toValue:0,duration:10,useNativeDriver:false}).start()
-      if(curgoal[0]=='shape'){
+      if(curgoal[0]=='shape'||curgoal[0]=='animal'){
       Animated.timing(goal_scale,{toValue:0,duration:10,useNativeDriver:false}).start(()=>{
         Animated.timing(goal_scale,{toValue:1,duration:2000,useNativeDriver:false,easing:Easing.bounce}).start(()=>{
-          playSound("start");
+          curgoal[0]=='animal'?playAnimalSound(curgoal[1]):playSound("start");
           for(let i=0;i<shapes.length;i++){
             Animated.timing(anim_scale[i],{toValue:1,duration:500,useNativeDriver:false}).start()
           }
@@ -99,7 +107,7 @@ const App = () => {
   }
 
   function GenerateShapes(thisgoal){
-    let no_winners = 2+ Math.floor(Math.random()*(NO_SHAPES/2-2));
+    let no_winners = 3+ Math.floor(Math.random()*(NO_SHAPES/2-3));
     let winners = []
     let remaining = []
     for(let i=0;i<NO_SHAPES;i++){
@@ -113,17 +121,21 @@ const App = () => {
     }
       let wrongshapes = POSSIBLE_SHAPES.filter(x=>x!=thisgoal[1])
       let wrongcolors = POSSIBLE_COLORS.filter(x=>x!=thisgoal[1])
+      let wronganimals = POSSIBLE_ANIMALS.filter(x=>x!=thisgoal[1])
 
         for (let i=0;i<NO_SHAPES;i++){
-
-      let chosenshape = wrongshapes[Math.floor(Math.random()*wrongshapes.length)]
-      let chosencolor = wrongcolors[Math.floor(Math.random()*wrongcolors.length)]
-      let isanswer = false
-      if(winners.indexOf(i)>-1&&thisgoal[0]=='shape'){chosenshape=thisgoal[1];isanswer=true}
-      if(winners.indexOf(i)>-1&&thisgoal[0]=='color'){chosencolor=thisgoal[1];isanswer=true}
-      let location = GetStartingLocation(i)
-      initshapes[i] = {x:location.x,y:location.y,shape:chosenshape,color:chosencolor,complete:false,correct:isanswer}
-    }
+          let chosenshape = wrongshapes[Math.floor(Math.random()*wrongshapes.length)]
+          let chosencolor = wrongcolors[Math.floor(Math.random()*wrongcolors.length)]
+          let chosenanimal = wronganimals[Math.floor(Math.random()*wronganimals.length)]
+          let isanswer = false
+          if(winners.indexOf(i)>-1&&thisgoal[0]=='shape'){chosenshape=thisgoal[1];isanswer=true}
+          if(winners.indexOf(i)>-1&&thisgoal[0]=='color'){chosencolor=thisgoal[1];isanswer=true}
+          if(winners.indexOf(i)>-1&&thisgoal[0]=='animal'){chosenanimal=thisgoal[1];isanswer=true}
+          let chosenanimalpicno = Math.floor(Math.random()*animal_pic_numbers[chosenanimal])
+          let location = GetStartingLocation(i)
+        // let location = getRandomStartingLocation(i);
+          initshapes[i] = {x:location.x,y:location.y,shape:chosenshape,color:chosencolor,animal:chosenanimal,animalpic:chosenanimalpicno,complete:false,correct:isanswer,index:1}
+        }
 
     return initshapes
   }
@@ -133,11 +145,21 @@ const App = () => {
       let column = i % ACROSS;
             let xrange = WINDOW_WIDTH-2*MARGIN-SHAPE_SIZE
       let yrange = WINDOW_HEIGHT-GOAL_HEIGHT-MARGIN-SHAPE_SIZE
-      startinglocation={}
+      let startinglocation={}
       startinglocation.x=MARGIN+xrange/(ACROSS-1)*(column)
       startinglocation.y=MARGIN+yrange/(ROWS-1)*(row)
       return startinglocation
+  }
 
+  function getRandomStartingLocation(i){
+    let xmin = MARGIN;
+    let xmax = WINDOW_WIDTH-MARGIN-SHAPE_SIZE
+    let ymin = MARGIN;
+    let ymax = WINDOW_HEIGHT-GOAL_HEIGHT-SHAPE_SIZE;
+    let startinglocation = {}
+    startinglocation.x = Math.floor(Math.random()*(xmax-xmin));
+    startinglocation.y = Math.floor(Math.random()*(ymax-ymin));
+    return startinglocation;
   }
 
   function HandleDrop(i){
@@ -189,19 +211,34 @@ const App = () => {
   for (let i=0;i<NO_SHAPES;i++){  //create random shapes
     panResponders[i] = PanResponder.create({
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderRelease: ()=>{HandleDrop(i)},
+    onPanResponderRelease: ()=>{
+      // let newshapes = shapes.map(x=>x)
+      // newshapes[i].index = 0;
+      // setShapes(newshapes)
+      HandleDrop(i)},
     onPanResponderMove: (evt, gestureState) => {
       const { dx, dy } = gestureState;
       let newshapes = shapes.map(x=>x)
       newshapes[i]["x"] = newshapes[i]["x"]+dx;
       newshapes[i]["y"] = newshapes[i]["y"] +dy;
+      newshapes[i].index = shape_index + 1;
+      setShape_index(shape_index + 1);
       setShapes(newshapes);},});
  
+      //render shapes
+      if(goal[0]=='color'||goal[0]=='shape'){
+        if (shapes[i]["shape"]=="triangle"){
+          shaperender[i] = <Animated.View key={"shape"+i} style={[styles[shapes[i]["shape"]],{borderBottomColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
+        }else{
+        shaperender[i] = <Animated.View key={"shape"+i}  style={[styles[shapes[i]["shape"]],{backgroundColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
+        }
+      }
+      if(goal[0]=='animal'){
+        shaperender[i] = <Animated.View key={'animal'+i}
+        style={[styles.square,{backgroundColor:'transparent',left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}
+        >{getAnimalRender(shapes,i,SHAPE_SIZE)}</Animated.View>
 
-      if (shapes[i]["shape"]=="triangle"){
-        shaperender[i] = <Animated.View key={"shape"+i} style={[styles[shapes[i]["shape"]],{borderBottomColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
-      }else{
-      shaperender[i] = <Animated.View key={"shape"+i}  style={[styles[shapes[i]["shape"]],{backgroundColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
+
       }
     
   }
@@ -212,15 +249,25 @@ const App = () => {
   if(goal[0]=="shape"){
     goalrender = <Animated.View style={[styles['goal'+goal[1]],{top:GOAL_HEIGHT/2-SHAPE_SIZE*1.5,transform:[{scale:goal_scale}]}]}/>
     message = "Find the "+goal[1]+"s!"
-  }else{
-
+  }
+  if(goal[0]=='color'){
     goalrender = <Animated.View style={[styles.goalcolor,{backgroundColor:goal[1],height:goal_height}]}/>
     message = "Find the "+goal[1]+" shapes!"
-
   }
-  
+  if(goal[0]=='animal'){
+    let goalimage = <Image source={require('./assets/high-volume.png')} style={{height:SHAPE_SIZE,width:SHAPE_SIZE}}/>
+
+    //goalimage.props.style.height=SHAPE_SIZE;
+    //goalimage.props.style.width=SHAPE_SIZE;
+    goalrender = <Animated.View style={[styles.square,{backgroundColor:goal[1],height:GOAL_HEIGHT,width:"100%",alignItems:'center',transform:[{scale:goal_scale}]}]}>
+      <Pressable onPress={()=>playAnimalSound(goal[1])} style={{top:GOAL_HEIGHT/2-SHAPE_SIZE*1.5}}>{goalimage}</Pressable>
+
+    </Animated.View>
+    message = "Who makes that noise?"
+  }
+
   //you win screen
-  let youwin = <Animated.View style={{position:'absolute',width:'70%',height:'50%',backgroundColor:"lightgreen",alignItems:'center',transform:[{scale:winner_scale}],justifyContent:'center',borderRadius:25,top:WINDOW_HEIGHT*.5*.5-MARGIN,left:WINDOW_WIDTH*.3*.5,borderWidth:2,borderColor:'black',zIndex:victory==false?-1:1}}>
+  let youwin = <Animated.View style={{position:'absolute',width:'70%',height:'50%',backgroundColor:"lightgreen",alignItems:'center',transform:[{scale:winner_scale}],justifyContent:'center',borderRadius:25,top:WINDOW_HEIGHT*.5*.5-MARGIN,left:WINDOW_WIDTH*.3*.5,borderWidth:2,borderColor:'black',zIndex:victory==false?-1:99999}}>
   <Pressable style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={()=>Begin()}>
   <Text style={{fontSize:25,textAlign:'center',fontWeight:'bold'}}>You Win!{`\n`}Play Again</Text>
   </Pressable>
@@ -294,7 +341,7 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderBottomColor: 'blue',
     borderLeftColor: 'transparent',
-    borderStyle:'dashed',
+  
     opacity:0.5,
     zIndex:-1
   },
