@@ -10,7 +10,7 @@ const NO_SHAPES = 12;
 const ACROSS = 3;
 const POSSIBLE_SHAPES = ['square','circle','triangle','rectangle']
 const POSSIBLE_COLORS = ['red','blue','green','orange','yellow','purple','black','magenta','tan','brown','cyan']
-const POSSIBLE_ANIMALS = ['cat','cow','crow','dog','duck','elephant','horse','monkey','owl','rooster','sheep']
+const POSSIBLE_ANIMALS = ['bee','cat','cow','crow','dog','duck','elephant','horse','monkey','owl','rooster','sheep']
 const GOAL_TYPES = ['shape','color','animal']
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -130,7 +130,7 @@ const App = () => {
           let isanswer = false
           if(winners.indexOf(i)>-1&&thisgoal[0]=='shape'){chosenshape=thisgoal[1];isanswer=true}
           if(winners.indexOf(i)>-1&&thisgoal[0]=='color'){chosencolor=thisgoal[1];isanswer=true}
-          if(winners.indexOf(i)>-1&&thisgoal[0]=='animal'){chosenanimal=thisgoal[1];isanswer=true}
+          if(winners.indexOf(i)>-1&&thisgoal[0]=='animal'){chosenanimal=thisgoal[1];isanswer=true;chosencolor='transparent'}
           let chosenanimalpicno = Math.floor(Math.random()*animal_pic_numbers[chosenanimal])
           let location = GetStartingLocation(i)
         // let location = getRandomStartingLocation(i);
@@ -219,8 +219,11 @@ const App = () => {
     onPanResponderMove: (evt, gestureState) => {
       const { dx, dy } = gestureState;
       let newshapes = shapes.map(x=>x)
-      newshapes[i]["x"] = newshapes[i]["x"]+dx;
-      newshapes[i]["y"] = newshapes[i]["y"] +dy;
+      let newspace = {}
+      newspace.x=newshapes[i].x+dx;
+      newspace.y = newshapes[i].y +dy;
+      newspace.x>0?(newspace.x<WINDOW_WIDTH-SHAPE_SIZE?newshapes[i]["x"] = newshapes[i]["x"]+dx:newshapes[i].x=WINDOW_WIDTH-SHAPE_SIZE):newshapes[i].x=0;
+      newspace.y>0?newshapes[i]["y"] = newshapes[i]["y"] +dy:newshapes[i].y=0;
       newshapes[i].index = shape_index + 1;
       setShape_index(shape_index + 1);
       setShapes(newshapes);},});
@@ -235,7 +238,7 @@ const App = () => {
       }
       if(goal[0]=='animal'){
         shaperender[i] = <Animated.View key={'animal'+i}
-        style={[styles.square,{backgroundColor:'transparent',left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}
+        style={[styles.square,{backgroundColor:'transparent',width:SHAPE_SIZE*1.5,height:SHAPE_SIZE*1.5,left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}
         >{getAnimalRender(shapes,i,SHAPE_SIZE)}</Animated.View>
 
 
@@ -255,11 +258,11 @@ const App = () => {
     message = "Find the "+goal[1]+" shapes!"
   }
   if(goal[0]=='animal'){
-    let goalimage = <Image source={require('./assets/high-volume.png')} style={{height:SHAPE_SIZE,width:SHAPE_SIZE}}/>
+    let goalimage = <Image source={require('./assets/high-volume.png')} style={{height:SHAPE_SIZE,width:SHAPE_SIZE,backgroundColor:'transparent'}}/>
 
     //goalimage.props.style.height=SHAPE_SIZE;
     //goalimage.props.style.width=SHAPE_SIZE;
-    goalrender = <Animated.View style={[styles.square,{backgroundColor:goal[1],height:GOAL_HEIGHT,width:"100%",alignItems:'center',transform:[{scale:goal_scale}]}]}>
+    goalrender = <Animated.View style={[styles.square,{backgroundColor:'transparent',height:GOAL_HEIGHT,width:"100%",alignItems:'center',transform:[{scale:goal_scale}]}]}>
       <Pressable onPress={()=>playAnimalSound(goal[1])} style={{top:GOAL_HEIGHT/2-SHAPE_SIZE*1.5}}>{goalimage}</Pressable>
 
     </Animated.View>
