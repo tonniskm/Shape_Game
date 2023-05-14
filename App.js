@@ -120,7 +120,7 @@ const App = () => {
       remaining = remaining.filter(x=>x!=winners[i])
 
     }
-    console.log(winners)
+ 
       let wrongshapes = POSSIBLE_SHAPES.filter(x=>x!=thisgoal[1])
       let wrongcolors = POSSIBLE_COLORS.filter(x=>x!=thisgoal[1])
       let wronganimals = POSSIBLE_ANIMALS.filter(x=>x!=thisgoal[1])
