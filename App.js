@@ -57,12 +57,13 @@ const App = () => {
   function Begin(){
     setShape_index(1);
     let goaltype = GOAL_TYPES[Math.floor(Math.random()*GOAL_TYPES.length)];
+     goaltype = 'animal'
     let curgoal = []
     if(goaltype =='shape'){
       let chosenshape = POSSIBLE_SHAPES[Math.floor(Math.random()*POSSIBLE_SHAPES.length)]
       curgoal = ['shape',chosenshape]
       setGoal(['shape',chosenshape])
-    }
+    } 
     if(goaltype=='color'){
       let chosencolor = POSSIBLE_COLORS[Math.floor(Math.random()*POSSIBLE_COLORS.length)]
       goaltype = 'color'
@@ -233,14 +234,14 @@ const App = () => {
       //render shapes
       if(goal[0]=='color'||goal[0]=='shape'){
         if (shapes[i]["shape"]=="triangle"){
-          shaperender[i] = <Animated.View key={"shape"+i} style={[styles[shapes[i]["shape"]],{borderBottomColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
+          shaperender[i] = <Animated.View key={"shape"+i} style={[styles[shapes[i]["shape"]],{borderBottomColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index+1,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
         }else{
-        shaperender[i] = <Animated.View key={"shape"+i}  style={[styles[shapes[i]["shape"]],{backgroundColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
+        shaperender[i] = <Animated.View key={"shape"+i}  style={[styles[shapes[i]["shape"]],{backgroundColor:shapes[i]["color"],left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index+1,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}/>
         }
       }
       if(goal[0]=='animal'){
         shaperender[i] = <Animated.View key={'animal'+i}
-        style={[styles.square,{backgroundColor:'transparent',width:SHAPE_SIZE*1.5,height:SHAPE_SIZE*1.5,left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}
+        style={[styles.square,{backgroundColor:'transparent',width:SHAPE_SIZE*1.5,height:SHAPE_SIZE*1.5,left:shapes[i].x,top:shapes[i].y,opacity:anim_opacity[i],zIndex:shapes[i].index+1,transform:[{scale:anim_scale[i]}]}]} {...panResponders[i].panHandlers}
         >{getAnimalRender(shapes,i,SHAPE_SIZE)}</Animated.View>
 
 
@@ -256,8 +257,10 @@ const App = () => {
     message = "Find the "+goal[1]+"s!"
   }
   if(goal[0]=='color'){
-    goalrender = <Animated.View style={[styles.goalcolor,{backgroundColor:goal[1],height:goal_height}]}/>
+    goalrender = <Animated.View style={[styles.goalcolor,{backgroundColor:'blue',height:goal_height,width:'100%'}]}/>
+    // goalrender = <Animated.View style={{backgroundColor:'red',height:goal_height,width:'100%',zIndex:0}}></Animated.View>
     message = "Find the "+goal[1]+" shapes!"
+    // console.log(styles.goalcolor)
   }
   if(goal[0]=='animal'){
     let goalimage = <Image source={require('./assets/high-volume.png')} style={{height:SHAPE_SIZE,width:SHAPE_SIZE,backgroundColor:'transparent'}}/>
@@ -348,7 +351,7 @@ const styles = StyleSheet.create({
     borderLeftColor: 'transparent',
   
     opacity:0.5,
-    zIndex:-1
+    zIndex:0
   },
   goalsquare: {
     position: 'absolute',
@@ -358,7 +361,7 @@ const styles = StyleSheet.create({
     borderWidth:2,
     borderColor:'black',
     borderStyle: 'dashed',
-    zIndex:-1
+    zIndex:0
   },
   goalcircle: {
     position: 'absolute',
@@ -369,13 +372,13 @@ const styles = StyleSheet.create({
     borderWidth:2,
     borderColor:'black',
     borderStyle: 'dashed',
-    zIndex:-1
+    zIndex:0
   },
   goalcolor:{
     height:'100%',
     width:'100%',
     opacity:0.9,
-    zIndex:-1
+    zIndex:0
   },
   goaloval: {
     position: 'absolute',
@@ -387,7 +390,7 @@ const styles = StyleSheet.create({
     borderColor:'black',
     borderStyle: 'dashed',
     transform:[{scaleX:2}],
-    zIndex:-1
+    zIndex:0
   },
   oval: {
     position: 'absolute',
@@ -405,7 +408,7 @@ const styles = StyleSheet.create({
     borderWidth:2,
     borderColor:'black',
     borderStyle: 'dashed',
-    zIndex:-1
+    zIndex:0
   },
     rectangle: {
     position: 'absolute',
