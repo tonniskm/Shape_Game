@@ -57,7 +57,6 @@ const App = () => {
   function Begin(){
     setShape_index(1);
     let goaltype = GOAL_TYPES[Math.floor(Math.random()*GOAL_TYPES.length)];
-     goaltype = 'animal'
     let curgoal = []
     if(goaltype =='shape'){
       let chosenshape = POSSIBLE_SHAPES[Math.floor(Math.random()*POSSIBLE_SHAPES.length)]
