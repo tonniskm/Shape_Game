@@ -256,7 +256,7 @@ const App = () => {
     message = "Find the "+goal[1]+"s!"
   }
   if(goal[0]=='color'){
-    goalrender = <Animated.View style={[styles.goalcolor,{backgroundColor:'blue',height:goal_height,width:'100%'}]}/>
+    goalrender = <Animated.View style={[styles.goalcolor,{backgroundColor:goal[1],height:goal_height,width:'100%'}]}/>
     // goalrender = <Animated.View style={{backgroundColor:'red',height:goal_height,width:'100%',zIndex:0}}></Animated.View>
     message = "Find the "+goal[1]+" shapes!"
     // console.log(styles.goalcolor)
